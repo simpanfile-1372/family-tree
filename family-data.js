@@ -1,5 +1,4 @@
-{
-  "familyData": [
+const familyData = [
     ["Rosmi", "Refmainur"],
     ["Rosmi", "Faridawati"],
     ["Rosmi", "Armayuni"],
@@ -9,5 +8,4 @@
     ["Faridawati", "Maylani Usfa Putri"],
     ["Faridawati", "Mona Ratuliu"]
     ["Maylani Usfa Putri", "Dina dan Gibran"]
-  ]
-}
+];
