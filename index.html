@@ -85,59 +85,69 @@
 <body>
     <div id="familyTree" class="tree"></div>
 
-    <!-- Load the family data first -->
-    <script src="family-data.js"></script>
-    
     <script>
-        function buildFamilyTree(data) {
-            const tree = {};
-            data.forEach(([ancestor, descendant]) => {
-                if (!tree[ancestor]) {
-                    tree[ancestor] = [];
-                }
-                tree[ancestor].push(descendant);
+    // Family data - Edit this part to update your family tree
+    const familyData = [
+        ["Great-Grandparent 1", "Parent 1"],
+        ["Great-Grandparent 2", "Parent 2"],
+        ["Grandparent 1", "Child 1"],
+        ["Grandparent 2", "Child 2"],
+        ["Parent 1", "Grandchild 1"],
+        ["Parent 2", "Grandchild 2"],
+        ["Child 1", "Great-Grandchild 1"],
+        ["Child 2", "Great-Grandchild 2"]
+    ];
+
+    // Main logic - Don't edit below this line unless you want to change the tree's behavior
+    function buildFamilyTree(data) {
+        const tree = {};
+        data.forEach(([ancestor, descendant]) => {
+            if (!tree[ancestor]) {
+                tree[ancestor] = [];
+            }
+            tree[ancestor].push(descendant);
+        });
+        return tree;
+    }
+
+    function createTreeHTML(tree, root) {
+        let html = '<ul>';
+        if (tree[root]) {
+            html += `<li><a href="#" class="collapsible">${root}</a><ul class="nested">`;
+            tree[root].forEach(child => {
+                html += createTreeHTML(tree, child);
             });
-            return tree;
+            html += '</ul></li>';
+        } else {
+            html += `<li><a href="#">${root}</a></li>`;
         }
+        html += '</ul>';
+        return html;
+    }
 
-        function createTreeHTML(tree, root) {
-            let html = '<ul>';
-            if (tree[root]) {
-                html += `<li><a href="#" class="collapsible">${root}</a><ul class="nested">`;
-                tree[root].forEach(child => {
-                    html += createTreeHTML(tree, child);
-                });
-                html += '</ul></li>';
-            } else {
-                html += `<li><a href="#">${root}</a></li>`;
-            }
-            html += '</ul>';
-            return html;
+    function initializeTree() {
+        const familyTree = buildFamilyTree(familyData);
+        const rootAncestor = Object.keys(familyTree)[0];
+        document.getElementById('familyTree').innerHTML = createTreeHTML(familyTree, rootAncestor);
+        
+        // Add event listeners to make the tree collapsible
+        var coll = document.getElementsByClassName("collapsible");
+        for (var i = 0; i < coll.length; i++) {
+            coll[i].addEventListener("click", function(e) {
+                e.preventDefault();
+                this.classList.toggle("active");
+                var content = this.nextElementSibling;
+                if (content.style.display === "block") {
+                    content.style.display = "none";
+                } else {
+                    content.style.display = "block";
+                }
+            });
         }
+    }
 
-        function initializeTree() {
-            const familyTree = buildFamilyTree(familyData);
-            const rootAncestor = Object.keys(familyTree)[0];
-            document.getElementById('familyTree').innerHTML = createTreeHTML(familyTree, rootAncestor);
-            
-            // Add event listeners to make the tree collapsible
-            var coll = document.getElementsByClassName("collapsible");
-            for (var i = 0; i < coll.length; i++) {
-                coll[i].addEventListener("click", function(e) {
-                    e.preventDefault();
-                    this.classList.toggle("active");
-                    var content = this.nextElementSibling;
-                    if (content.style.display === "block") {
-                        content.style.display = "none";
-                    } else {
-                        content.style.display = "block";
-                    }
-                });
-            }
-        }
-
-        // Initialize the tree when the page loads
-        window.onload = initializeTree;
+    // Initialize the tree when the page loads
+    window.onload = initializeTree;
     </script>
 </body>
 </html>
