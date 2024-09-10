@@ -86,14 +86,17 @@
     <div class="tree" id="familyTree"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
-    <script src="familyData.js"></script>
-    <script> 
-        // Your JSON data should be loaded here
-      //  const familyData = [
-            // Example data structure:
-            // {ancestor: "John Doe", gender_ancestor: "male", descendant: "Jane Doe", gender_descendant: "female"},
-            // Add your actual data here
-      //  ];
+    <script>
+        async function loadFamilyData() {
+            try {
+                const response = await fetch('family-data.json');
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Error loading family data:', error);
+                return [];
+            }
+        }
 
         function buildFamilyTree(data) {
             const tree = {};
@@ -148,7 +151,8 @@
             return li;
         }
 
-        function initializeTree() {
+        async function initializeTree() {
+            const familyData = await loadFamilyData();
             const rootNode = buildFamilyTree(familyData)[0];
             const treeContainer = document.getElementById('familyTree');
             const ul = document.createElement('ul');
