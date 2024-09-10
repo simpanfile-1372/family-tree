@@ -3,46 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Collapsible Family Tree</title>
+    <title>Family Tree</title>
     <style>
-        .tree {
-            font-family: Arial, sans-serif;
-        }
         .tree ul {
-            padding-left: 20px;
+            padding-top: 20px; position: relative;
         }
         .tree li {
+            float: left; text-align: center;
             list-style-type: none;
-            margin: 10px 0;
             position: relative;
+            padding: 20px 5px 0 5px;
         }
-        .tree li::before {
-            content: "";
-            position: absolute;
-            top: -10px;
-            left: -20px;
-            border-left: 1px solid #ccc;
-            border-bottom: 1px solid #ccc;
-            width: 20px;
-            height: 15px;
-        }
-        .tree li:last-child::before {
-            border-left: none;
+        .tree li::before, .tree li::after {
+            content: '';
+            position: absolute; top: 0; right: 50%;
+            border-top: 1px solid #ccc;
+            width: 50%; height: 20px;
         }
         .tree li::after {
-            position: absolute;
-            content: "";
-            top: 5px;
-            left: -20px;
+            right: auto; left: 50%;
             border-left: 1px solid #ccc;
-            border-top: 1px solid #ccc;
-            width: 20px;
-            height: 100%;
         }
-        .tree li:last-child::after {
+        .tree li:only-child::after, .tree li:only-child::before {
             display: none;
         }
-        .tree li a {
+        .tree li:only-child {
+            padding-top: 0;
+        }
+        .tree li:first-child::before, .tree li:last-child::after {
+            border: 0 none;
+        }
+        .tree li:last-child::before {
+            border-right: 1px solid #ccc;
+            border-radius: 0 5px 0 0;
+        }
+        .tree li:first-child::after {
+            border-radius: 5px 0 0 0;
+        }
+        .tree ul ul::before {
+            content: '';
+            position: absolute; top: 0; left: 50%;
+            border-left: 1px solid #ccc;
+            width: 0; height: 20px;
+        }
+        .tree li div {
             border: 1px solid #ccc;
             padding: 5px 10px;
             text-decoration: none;
@@ -53,101 +57,106 @@
             border-radius: 5px;
             transition: all 0.5s;
         }
-        .tree li a:hover, .tree li a:hover+ul li a {
-            background: #c8e4f8;
-            color: #000;
-            border: 1px solid #94a0b4;
+        .tree li div:hover, .tree li div:hover+ul li div {
+            background: #c8e4f8; color: #000; border: 1px solid #94a0b4;
         }
-        .tree li a:hover+ul li::after, 
-        .tree li a:hover+ul li::before, 
-        .tree li a:hover+ul::before, 
-        .tree li a:hover+ul ul::before{
+        .tree li div:hover+ul li::after, 
+        .tree li div:hover+ul li::before, 
+        .tree li div:hover+ul::before, 
+        .tree li div:hover+ul ul::before {
             border-color: #94a0b4;
         }
-        .collapsible::before {
-            content: '\25B6';
-            color: black;
-            font-weight: bold;
-            float: left;
-            margin-right: 5px;
+        .male {
+            background-color: #b0e0e6;
         }
-        .active::before {
-            content: "\25BC";
+        .female {
+            background-color: #ffb6c1;
         }
-        .nested {
+        .collapsed > ul {
             display: none;
         }
-        .active {
-            display: block;
+        .expand-collapse {
+            cursor: pointer;
+            color: blue;
+            margin-left: 5px;
         }
     </style>
 </head>
 <body>
-    <div id="familyTree" class="tree"></div>
+    <div class="tree" id="familyTree"></div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
     <script>
-    // Family data - Edit this part to update your family tree
-    const familyData = [
-        ["Great-Grandparent 1", "Parent 1"],
-        ["Great-Grandparent 2", "Parent 2"],
-        ["Grandparent 1", "Child 1"],
-        ["Grandparent 2", "Child 2"],
-        ["Parent 1", "Grandchild 1"],
-        ["Parent 2", "Grandchild 2"],
-        ["Child 1", "Great-Grandchild 1"],
-        ["Child 2", "Great-Grandchild 2"]
-    ];
+        // Your JSON data should be loaded here
+        const familyData = [
+            // Example data structure:
+            // {ancestor: "John Doe", gender_ancestor: "male", descendant: "Jane Doe", gender_descendant: "female"},
+            // Add your actual data here
+        ];
 
-    // Main logic - Don't edit below this line unless you want to change the tree's behavior
-    function buildFamilyTree(data) {
-        const tree = {};
-        data.forEach(([ancestor, descendant]) => {
-            if (!tree[ancestor]) {
-                tree[ancestor] = [];
-            }
-            tree[ancestor].push(descendant);
-        });
-        return tree;
-    }
-
-    function createTreeHTML(tree, root) {
-        let html = '<ul>';
-        if (tree[root]) {
-            html += `<li><a href="#" class="collapsible">${root}</a><ul class="nested">`;
-            tree[root].forEach(child => {
-                html += createTreeHTML(tree, child);
-            });
-            html += '</ul></li>';
-        } else {
-            html += `<li><a href="#">${root}</a></li>`;
-        }
-        html += '</ul>';
-        return html;
-    }
-
-    function initializeTree() {
-        const familyTree = buildFamilyTree(familyData);
-        const rootAncestor = Object.keys(familyTree)[0];
-        document.getElementById('familyTree').innerHTML = createTreeHTML(familyTree, rootAncestor);
-        
-        // Add event listeners to make the tree collapsible
-        var coll = document.getElementsByClassName("collapsible");
-        for (var i = 0; i < coll.length; i++) {
-            coll[i].addEventListener("click", function(e) {
-                e.preventDefault();
-                this.classList.toggle("active");
-                var content = this.nextElementSibling;
-                if (content.style.display === "block") {
-                    content.style.display = "none";
-                } else {
-                    content.style.display = "block";
+        function buildFamilyTree(data) {
+            const tree = {};
+            data.forEach(item => {
+                if (!tree[item.ancestor]) {
+                    tree[item.ancestor] = {name: item.ancestor, gender: item.gender_ancestor, children: []};
                 }
+                tree[item.ancestor].children.push({name: item.descendant, gender: item.gender_descendant});
             });
+            return Object.values(tree);
         }
-    }
 
-    // Initialize the tree when the page loads
-    window.onload = initializeTree;
+        function renderTree(node) {
+            const li = document.createElement('li');
+            const div = document.createElement('div');
+            div.textContent = node.name;
+            div.classList.add(node.gender.toLowerCase());
+            
+            if (node.children && node.children.length > 0) {
+                const span = document.createElement('span');
+                span.textContent = '[-]';
+                span.className = 'expand-collapse';
+                span.onclick = function(e) {
+                    e.stopPropagation();
+                    const parentLi = this.parentNode.parentNode;
+                    parentLi.classList.toggle('collapsed');
+                    this.textContent = parentLi.classList.contains('collapsed') ? '[+]' : '[-]';
+                };
+                div.appendChild(span);
+            }
+
+            li.appendChild(div);
+
+            if (node.children && node.children.length > 0) {
+                const ul = document.createElement('ul');
+                node.children.forEach(child => {
+                    const childTree = buildFamilyTree(familyData.filter(item => item.ancestor === child.name));
+                    if (childTree.length > 0) {
+                        ul.appendChild(renderTree(childTree[0]));
+                    } else {
+                        const childLi = document.createElement('li');
+                        const childDiv = document.createElement('div');
+                        childDiv.textContent = child.name;
+                        childDiv.classList.add(child.gender.toLowerCase());
+                        childLi.appendChild(childDiv);
+                        ul.appendChild(childLi);
+                    }
+                });
+                li.appendChild(ul);
+            }
+
+            return li;
+        }
+
+        function initializeTree() {
+            const rootNode = buildFamilyTree(familyData)[0];
+            const treeContainer = document.getElementById('familyTree');
+            const ul = document.createElement('ul');
+            ul.appendChild(renderTree(rootNode));
+            treeContainer.appendChild(ul);
+        }
+
+        // Call this function when the page loads
+        window.onload = initializeTree;
     </script>
 </body>
 </html>
